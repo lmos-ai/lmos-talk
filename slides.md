@@ -7,10 +7,7 @@ background: /images/intro.png
 # some information about your slides (markdown enabled)
 title: The evolution of LMOS
 info: |
-  ## Slidev Starter Template
-  Presentation slides for developers.
-
-  Learn more at [Sli.dev](https://sli.dev)
+  The evolution of LMOS
 # apply unocss classes to the current slide
 class: text-center
 # https://sli.dev/features/drawing
@@ -23,7 +20,8 @@ mdc: true
 fonts:
   # like font-family in css, you can use `,` to separate multiple fonts for fallback
   sans: 'Helvetica Neue,Robot'
-
+addons:
+  - slidev-addon-asciinema
 ---
 
 ---
@@ -36,8 +34,10 @@ backgroundSize: contain
 
 - Digital assistant of DT Customer Service
 - Available for Web, OneApp, WhatsApp, Apple Business Chat and IVR in Germany
+  
+<br>
 
-<SlidevVideo autoplay width="200">
+<SlidevVideo autoplay width="180">
   <!-- Anything that can go in an HTML video element. -->
   <source src="/videos/frag_magenta.mp4" type="video/mp4" />
   <p>
@@ -55,12 +55,12 @@ backgroundSize: contain
 # Facing limitations
 
 #### RASA’s Design:
-- **Scripted Dialogue Flow:** Predefined YAML-based scripts to steer dialogues.
-- **Predictive Planning Required:** Customer interactions must be anticipated in advance.
-- **Intent Classification Challenges:** Natural Language Understanding (NLU) struggles with accurately classifying user intents.
-- **Manual Effort:** Continuous effort is required to update intents and train NLU.
-- **Knowledge gap:** No FAQ knowledge base was available.
-- **Scripting:** YAML is no scripting/programming language.
+- **Scripted Dialogue Flow:** Predefined YAML scripts guide dialogues.
+- **Predictive Planning Required:** Customer interactions must be anticipated.
+- **NLU Challenges:** NLU struggled with accurate intent recognition.
+- **Manual Effort:** Continuous effort needed to update intents and train NLU.
+- **Knowledge gap:** No FAQ knowledge base available.
+- **Scripting:** YAML isn't a programming language.
 
 ---
 
@@ -75,7 +75,7 @@ backgroundSize: contain
 
 #### Need for Change:
 - **Improve NLU/NLP:** The existing NLU/NLP, static scripts and knowledge sources were not sufficient for many customer queries.
-- **Objectives:** Increase solution rate, reduce call center volumes, lower maintenance costs and enhance customer satisfaction 
+- **Objectives:** <span v-mark.red="1">Increase solution rate</span>, reduce call center volumes, lower maintenance costs and enhance customer satisfaction 
 
 ---
 
@@ -91,7 +91,7 @@ backgroundSize: contain
 - **Multi-tenant and omni-channel system:** A strategic move to develop a single system for multiple NatCos and channels by making use of M-APIs.
 - **Multi-agent system (MAS):** Multiple LLM-based agents, each focused on a specific business domain, working together to solve customer inquiries.
 - **Highly configurable:** Every tenant can have a unique set of Channels, Agents, capabilities and knowledge sources.
-- **Objective:** Improve speed to rollout the digital assistant to multiple NatCos: Austria and Croatia.
+- **Objective:** Improve <span v-mark.circle.red="1">speed</span> to rollout the digital assistant to multiple NatCos: Austria and Croatia.
 
 
 ---
@@ -196,10 +196,10 @@ backgroundSize: contain
 
 ---
 
-# The Agent Reactor (1/2)
+# The Agent Reactor (1/4)
 
 ````md magic-move
-```kotlin 
+```kotlin
 agent {
     name = "weather-agent"
     description = "Agent that provides weather data."
@@ -248,7 +248,7 @@ agent {
 ````
 ---
 
-# The Agent Reactor (2/2)
+# The Agent Reactor (2/4)
 ````md magic-move
 ```kotlin 
 function(
@@ -291,33 +291,80 @@ function(
 
 ---
 
-# The LMOS Kernel (1/2)
-````md magic-move
-```kotlin 
-@Component
-class BillingAgent() : Agent() {
+# The Agent Reactor (3/4)
 
-    override fun profile() = AgentProfile(name = "BillingAgent", 
-      purpose = "Agent that handles billing-related inquiries")
+<Asciinema src="casts/arc-demo.cast" :playerProps="{autoPlay: true, rows:25, terminalFontSize:medium}"/>
+
+---
+layout: image-right
+image: /images/arc_view.png
+backgroundSize: contain
+---
+
+# The ARC View (4/4)
+
+
+- Prompt engineering with hot reload
+- Function development with Kotlin Scripting
+- Graphql endpoint available 
+- Builtin-in metrics for performance insights
+- Import/export of transcripts
+
+---
+
+# The LMOS Kernel (1/3)
+
+````md magic-move
+```kotlin
+@Component
+class SupervisorAgent() : Agent() {
+
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
+
 }
 ```
 
-```kotlin 
+```kotlin
 @Component
-class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
+class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
 
-    override fun profile() = AgentProfile(name = "BillingAgent", 
-      purpose = "Agent that handles billing-related inquiries")
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
 
     override suspend fun executeInternal(input: Input): Output {
         return stepExecutor.seq()
 
             .end().execute(input)
     }
+
 }
 ```
 
-```kotlin 
+```kotlin {all|11}
+@Component
+class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
+
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
+
+    override suspend fun executeInternal(input: Input): Output {
+        return stepExecutor.seq()
+            .step<Anonymize>()
+            .step<InitConversationHistory>()
+            .step<RouteToAgent>()
+            .step<SaveConversationHistory>()
+            .step<Deanonymize>()
+            .end().execute(input)
+    }
+}
+```
+````
+
+---
+
+# The LMOS Kernel (2/3)
+```kotlin {all|11}
 @Component
 class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
 
@@ -326,7 +373,6 @@ class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
 
     override suspend fun executeInternal(input: Input): Output {
         return stepExecutor.seq()
-            .step<HandleUserAuth>()
             .step<ClassifyBillingRequest>()
             .step<LoadCustomerProfile>()
             .step<AnswerBillingQuery>()
@@ -336,64 +382,92 @@ class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
     }
 }
 ```
-````
 ---
 
-# The LMOS Kernel (2/2)
+# The LMOS Kernel (3/3)
 
 ````md magic-move
 ```kotlin 
 @Component
-class FilterIBANs() : AbstractStep() {
+class AnswerBillingQuery() : AbstractStep() {
 
-  override suspend fun executeInternal(input: Input): Output {
+    override suspend fun executeInternal(input: Input): Output {
 
-  }
+    }
 
 }
 ```
 
 ```kotlin 
 @Component
-class FilterIBANs(
-    private val promptTemplateRepository: PromptTemplateRepository,
-    private val ibanDetector: IBANExtractor
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider
 ) : AbstractStep() {
 
     override suspend fun executeInternal(input: Input): Output {
-        // Get prompt template which defines valid IBANs
-        val billingTemplate = promptTemplateRepository.findPromptTemplate("billing")!!.content
-        // Check if IBANs are in the answer which are not part of the prompt
-        val ibanDetected = ibanDetector.extract(input.content).any { !billingTemplate.contains(it) }
+        val functions = functionProvider.provideByGroup("billing_functions")
+        
+        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
+        val customerProfile = input.stepContext[CUSTOMER_PROFILE] as CustomerProfile
+        val channel = input.stepContext[CHANNEL_ID] as Channel
+
     }
 }
 ```
 
-```kotlin 
+```kotlin {4-6,13-18|19-22}
 @Component
-class FilterIBANs(
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider,
     private val promptTemplateRepository: PromptTemplateRepository,
-    private val ibanDetector: IBANExtractor
+    private val promptCompiler: PromptCompiler,
+    private val executor: LanguageModelExecutor
 ) : AbstractStep() {
 
     override suspend fun executeInternal(input: Input): Output {
-        // Get prompt template which defines valid IBANs
-        val billingTemplate = promptTemplateRepository.findPromptTemplate("billing")!!.content
-        // Check if IBANs are in the answer which are not part of the prompt
-        val ibanDetected = ibanDetector.extract(input.content).any { !billingTemplate.contains(it) }
-        if (ibanDetected) {
-            // "IBAN detected in the answer.
-            val output = Output(NO_CONTENT, Status.BREAK, input.context)
-            output.context.status = Status.UNRESOLVED
-            // Break the execution chain
-            return output
-        }
-        return Output(input, Status.CONTINUE)
+        val functions = functionProvider.provideByGroup("billing_functions")
+        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
+
+        val template = promptTemplateRepository.findPromptTemplate("billing_prompt")!!
+        val mapVariables = mapOf(
+            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
+            "channel" to input.stepContext[CHANNEL_ID] as Channel
+        )
+        val compiledPrompt = promptCompiler.compile(template, mapVariables).getOrThrow()
+        
+        val fullConversation = conversation + SystemMessage(compiledPrompt)
+        val answer = executor.ask(fullConversation, functions).getOrThrow()
+        return Output(answer.content, Status.CONTINUE, input)
     }
 }
 ```
 
+```kotlin {4,14}
+@Component
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider,
+    private val promptTemplateExecutor: PromptTemplateExecutor
+) : AbstractStep() {
+
+    override suspend fun executeInternal(input: Input): Output {
+        val functions = functionProvider.provideByGroup("billing_functions")
+        val conversation = input.stepContext[CUSTOMER_PROFILE] as Conversation
+        val mapVariables = mapOf(
+            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
+            "channel" to input.stepContext[CHANNEL_ID] as Channel
+        )
+        val answer = promptTemplateExecutor.execute(conversation, "billing_prompt", mapVariables, functions)
+        return Output(answer.content, Status.CONTINUE, input)
+    }
+}
+```
 ````
+
+---
+
+# The LMOS Operator
+
+<Asciinema src="casts/lmos-demo.cast" :playerProps="{autoPlay: true, rows:25, terminalFontSize: medium}"/>
 
 ---
 
