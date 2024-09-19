@@ -293,7 +293,7 @@ function(
 
 # The Agent Reactor (3/4)
 
-<Asciinema src="casts/arc-demo.cast" :playerProps="{autoPlay: true, rows:25, terminalFontSize:medium}"/>
+<Asciinema src="casts/arc-demo.cast" :playerProps="{rows:25, terminalFontSize:medium}"/>
 
 ---
 layout: image-right
@@ -467,7 +467,7 @@ class AnswerBillingQuery(
 
 # The LMOS Operator
 
-<Asciinema src="casts/lmos-demo.cast" :playerProps="{autoPlay: true, rows:25, terminalFontSize: medium}"/>
+<Asciinema src="casts/lmos-demo.cast" :playerProps="{rows:25, terminalFontSize: medium}"/>
 
 ---
 
