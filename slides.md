@@ -114,14 +114,21 @@ backgroundSize: contain
 #### Team Concerns:
 - **Distributed Team:** Coordination and sync between teams distributed across the globe.
 - **Expertise Gap:** Dev team’s background in Java/Kotlin rather than AI-specific technologies/languages.
-- **Complexity:** Concerns about handling the complexity of a multi-tenant, multi-channel system and reaching the efficiency needed for Deutsche Telekom.
 
 <br>
 
-#### Internal Doubts in LT:
-- **Feasibility Concerns:** Doubts about the team’s ability to deliver the solution in time.
+#### Internal Doubts:
+- **Feasibility Concerns:** Doubts about the team’s ability to deliver a solution in time.
 - **Building vs. Adapting:** Debate over whether to create a new solution or adapt/buy existing solutions.
 
+---
+layout: statement
+---
+
+# October 2023 - Birth of LMOS
+
+A cloud-native **L**anguage **M**odel **O**perating **S**ystem for building, running and composing LLM-based AI Agents <br> <br>
+Multi-tenant, Omni-Channel, Multi-agent
 
 ---
 layout: image-right
@@ -169,30 +176,32 @@ backgroundSize: contain
 
 ---
 layout: image-right
-image: /images/LMOS.png
+image: /images/LMOS_1.png
 backgroundSize: contain
 ---
 
 # The foundation
 
-- **Built on Kubernetes:** Leverage Kubernetes for orchestration and scalability.
-- **Istio Service Mesh:** Utilize Istio as the service mesh to enhance traffic management, security, and observability across agents.
-- **Extend Kubernetes:** Extend Kubernetes capabilities by developing a custom control plane to manage agents.
-- **ArgoCD & GitOps:** Use ArgoCD & Argo Rollouts with a GitOps approach to automate deployments and perform canary releases.
+1. **Built on Kubernetes:** Leverage Kubernetes for orchestration and scalability.
+2. **Istio Service Mesh:** Utilize Istio as the service mesh to enhance traffic management, security, and observability across agents.
+3. **LMOS Control Plane extends Kubernetes:** Extend Kubernetes capabilities by developing a custom control plane to run and manage agents.
+4. **ArgoCD & GitOps:** Use ArgoCD & Argo Rollouts with a GitOps approach to automate deployments and perform canary releases.
 
+---
+layout: image-right
+image: /images/LMOS_2.png
+backgroundSize: contain
 ---
 
 # The concepts
 
-- **ARC/LMOS-Kernel**: Simplifies development with tools and libraries.
-- **Agent Registry**: Centralized registry for agents' metadata.
-- **Agent Runtime**: Orchestrates collaboration between AI agents, sharing context to handle queries.
-- **Agent Discovery**: Runtime can discover installed Agents and their capabilities. 
-- **Dynamic Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
-- **Knowledge Retrieval:** ARC/LMOS supports function calling and retrieval-augmented generation (RAG).
-- **Memory Management:** Built-in memory for agents to store and retrieve interaction data.
-- **Custom Resource Definitions:** New Kubernetes resources for channel-based traffic management.
-- **Operator:** Manages channel and agent capabilities, supports channel-based canary rollouts.
+1. **ARC/LMOS-Kernel**: Simplifies AI agent development with tools and libraries.
+2. **Agent Registry**: Centralized registry for AI agents' metadata.
+3. **Agent Runtime**: Orchestrates collaboration between AI agents
+4. **Agent Discovery**: Runtime can discover installed Agents and their capabilities. 
+5. **Dynamic Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
+6. **Operator:** Manages channel and agent custom resources, supports channel-based canary rollouts.
+
 
 ---
 
@@ -293,7 +302,7 @@ function(
 
 # The Agent Reactor (3/4)
 
-<Asciinema src="casts/arc-demo.cast" :playerProps="{rows:25, terminalFontSize:medium}"/>
+<Asciinema src="casts/arc-demo.cast" :playerProps="{theme: 'monokai'}"/>
 
 ---
 layout: image-right
@@ -465,9 +474,94 @@ class AnswerBillingQuery(
 
 ---
 
+
+# The LMOS Operator concepts
+
+```mermaid
+classDiagram
+
+Tenant --> "0..*" Channel
+Tenant --> "0..*" Agent
+
+Agent *--> "1..*" Capability: provides
+
+Channel o--> "1..*" Capability: requires
+
+class one-app{
+    <<Channel>>
+}
+class web{
+    <<Channel>>
+}
+class DE{
+    <<Tenant>>
+}
+
+class WeatherAgent{
+    <<Agent>>
+    getForecast()
+}
+class NewsAgent{
+    <<Agent>>
+    summarize()
+}
+
+DE --> one-app
+DE --> web
+
+DE --> WeatherAgent
+DE --> NewsAgent
+
+one-app ..> WeatherAgent: requires
+web ..> WeatherAgent: requires
+web ..> NewsAgent: requires
+
+
+```
+
+
+---
+
+
+# The LMOS Operator concepts
+
+
+
+```mermaid
+classDiagram
+
+class NewsAgent{
+    <<Agent>>
+}
+class WeatherAgent{
+    <<Agent>>
+}
+class one-app-stable{
+    <<Channel>>
+}
+class one-app-canary{
+    <<Channel>>
+}
+
+class getForecast["getForecast v1.0.4"]
+<<Capability>> getForecast
+class summarize["summarize v1.0.2"]
+<<Capability>> summarize
+WeatherAgent --> getForecast :provides
+NewsAgent --> summarize :provides
+
+one-app-stable ..> getForecast :requires
+one-app-canary  ..> getForecast :requires
+one-app-canary  ..> summarize :requires  >=v1.0.1
+
+
+```
+
+---
+
 # The LMOS Operator
 
-<Asciinema src="casts/lmos-demo.cast" :playerProps="{rows:25, terminalFontSize: medium}"/>
+<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai'}"/>
 
 ---
 
@@ -505,7 +599,7 @@ class AnswerBillingQuery(
 <br>
 
 #### Performance Metrics:
-- **Solution Rate:** Achieved an 85% solution rate.
+- **Solution Rate:** Achieved an 85% solution rate. -14% agent handovers.
 - **Hallucinations:** Less than 5% incorrect or irrelevant responses, demonstrating strong model reliability.
 - **Development Efficiency:** Developed 14 use cases within a month, averaging 2.5 days per use case, highlighting rapid iteration and implementation.
 

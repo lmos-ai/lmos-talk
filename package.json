@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "slidev build",
-    "dev": "slidev --port 3030 slides.md",
+    "dev": "slidev --port 3030 --remote slides.md",
     "export": "slidev export"
   },
   "dependencies": {
@@ -15,6 +15,7 @@
     "vue": "latest"
   },
   "devDependencies": {
+    "asciinema-player": "^3.6.3",
     "playwright-chromium": "^1.46.1"
   }
 }
