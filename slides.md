@@ -202,6 +202,166 @@ backgroundSize: contain
 5. **Dynamic Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
 6. **Operator:** Manages channel and agent custom resources, supports channel-based canary rollouts.
 
+---
+layout: image
+image: /images/supervisor_agent.png
+backgroundSize: 65%
+---
+
+# The LMOS Kernel (1/4)
+
+---
+
+# The LMOS Kernel (2/4)
+
+````md magic-move
+```kotlin
+@Component
+class SupervisorAgent() : Agent() {
+
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
+
+}
+```
+
+```kotlin
+@Component
+class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
+
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
+
+    override suspend fun executeInternal(input: Input): Output {
+        return stepExecutor.seq()
+
+            .end().execute(input)
+    }
+
+}
+```
+
+```kotlin {all|11}
+@Component
+class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
+
+    override fun profile() = AgentProfile(name = "SupervisorAgent", 
+      purpose = "Agent that handles cross-cutting concerns and agent routing")
+
+    override suspend fun executeInternal(input: Input): Output {
+        return stepExecutor.seq()
+            .step<Anonymize>()
+            .step<InitConversationHistory>()
+            .step<RouteToAgent>()
+            .step<SaveConversationHistory>()
+            .step<Deanonymize>()
+            .end().execute(input)
+    }
+}
+```
+````
+
+---
+
+# The LMOS Kernel (3/4)
+```kotlin {all|11}
+@Component
+class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
+
+    override fun profile() = AgentProfile(name = "BillingAgent", 
+      purpose = "Agent that handles billing-related inquiries")
+
+    override suspend fun executeInternal(input: Input): Output {
+        return stepExecutor.seq()
+            .step<ClassifyBillingRequest>()
+            .step<LoadCustomerProfile>()
+            .step<AnswerBillingQuery>()
+            .step<DisplayBillingOptions>()
+            .step<GenerateFlexCards>()
+            .end().execute(input)
+    }
+}
+```
+---
+
+# The LMOS Kernel (4/4)
+
+````md magic-move
+```kotlin 
+@Component
+class AnswerBillingQuery() : AbstractStep() {
+
+    override suspend fun executeInternal(input: Input): Output {
+
+    }
+
+}
+```
+
+```kotlin 
+@Component
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider
+) : AbstractStep() {
+
+    override suspend fun executeInternal(input: Input): Output {
+        val functions = functionProvider.provideByGroup("billing_functions")
+        
+        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
+        val customerProfile = input.stepContext[CUSTOMER_PROFILE] as CustomerProfile
+        val channel = input.stepContext[CHANNEL_ID] as Channel
+
+    }
+}
+```
+
+```kotlin {4-6,13-18|19-22}
+@Component
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider,
+    private val promptTemplateRepository: PromptTemplateRepository,
+    private val promptCompiler: PromptCompiler,
+    private val executor: LanguageModelExecutor
+) : AbstractStep() {
+
+    override suspend fun executeInternal(input: Input): Output {
+        val functions = functionProvider.provideByGroup("billing_functions")
+        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
+
+        val template = promptTemplateRepository.findPromptTemplate("billing_prompt")!!
+        val mapVariables = mapOf(
+            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
+            "channel" to input.stepContext[CHANNEL_ID] as Channel
+        )
+        val compiledPrompt = promptCompiler.compile(template, mapVariables).getOrThrow()
+        
+        val fullConversation = conversation + SystemMessage(compiledPrompt)
+        val answer = executor.ask(fullConversation, functions).getOrThrow()
+        return Output(answer.content, Status.CONTINUE, input)
+    }
+}
+```
+
+```kotlin {4,14}
+@Component
+class AnswerBillingQuery(
+    private val functionProvider: LLMFunctionProvider,
+    private val promptTemplateExecutor: PromptTemplateExecutor
+) : AbstractStep() {
+
+    override suspend fun executeInternal(input: Input): Output {
+        val functions = functionProvider.provideByGroup("billing_functions")
+        val conversation = input.stepContext[CUSTOMER_PROFILE] as Conversation
+        val mapVariables = mapOf(
+            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
+            "channel" to input.stepContext[CHANNEL_ID] as Channel
+        )
+        val answer = promptTemplateExecutor.execute(conversation, "billing_prompt", mapVariables, functions)
+        return Output(answer.content, Status.CONTINUE, input)
+    }
+}
+```
+````
 
 ---
 
@@ -318,159 +478,6 @@ backgroundSize: contain
 - Graphql endpoint available 
 - Builtin-in metrics for performance insights
 - Import/export of transcripts
-
----
-
-# The LMOS Kernel (1/3)
-
-````md magic-move
-```kotlin
-@Component
-class SupervisorAgent() : Agent() {
-
-    override fun profile() = AgentProfile(name = "SupervisorAgent", 
-      purpose = "Agent that handles cross-cutting concerns and agent routing")
-
-}
-```
-
-```kotlin
-@Component
-class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
-
-    override fun profile() = AgentProfile(name = "SupervisorAgent", 
-      purpose = "Agent that handles cross-cutting concerns and agent routing")
-
-    override suspend fun executeInternal(input: Input): Output {
-        return stepExecutor.seq()
-
-            .end().execute(input)
-    }
-
-}
-```
-
-```kotlin {all|11}
-@Component
-class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
-
-    override fun profile() = AgentProfile(name = "SupervisorAgent", 
-      purpose = "Agent that handles cross-cutting concerns and agent routing")
-
-    override suspend fun executeInternal(input: Input): Output {
-        return stepExecutor.seq()
-            .step<Anonymize>()
-            .step<InitConversationHistory>()
-            .step<RouteToAgent>()
-            .step<SaveConversationHistory>()
-            .step<Deanonymize>()
-            .end().execute(input)
-    }
-}
-```
-````
-
----
-
-# The LMOS Kernel (2/3)
-```kotlin {all|11}
-@Component
-class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
-
-    override fun profile() = AgentProfile(name = "BillingAgent", 
-      purpose = "Agent that handles billing-related inquiries")
-
-    override suspend fun executeInternal(input: Input): Output {
-        return stepExecutor.seq()
-            .step<ClassifyBillingRequest>()
-            .step<LoadCustomerProfile>()
-            .step<AnswerBillingQuery>()
-            .step<DisplayBillingOptions>()
-            .step<GenerateFlexCards>()
-            .end().execute(input)
-    }
-}
-```
----
-
-# The LMOS Kernel (3/3)
-
-````md magic-move
-```kotlin 
-@Component
-class AnswerBillingQuery() : AbstractStep() {
-
-    override suspend fun executeInternal(input: Input): Output {
-
-    }
-
-}
-```
-
-```kotlin 
-@Component
-class AnswerBillingQuery(
-    private val functionProvider: LLMFunctionProvider
-) : AbstractStep() {
-
-    override suspend fun executeInternal(input: Input): Output {
-        val functions = functionProvider.provideByGroup("billing_functions")
-        
-        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
-        val customerProfile = input.stepContext[CUSTOMER_PROFILE] as CustomerProfile
-        val channel = input.stepContext[CHANNEL_ID] as Channel
-
-    }
-}
-```
-
-```kotlin {4-6,13-18|19-22}
-@Component
-class AnswerBillingQuery(
-    private val functionProvider: LLMFunctionProvider,
-    private val promptTemplateRepository: PromptTemplateRepository,
-    private val promptCompiler: PromptCompiler,
-    private val executor: LanguageModelExecutor
-) : AbstractStep() {
-
-    override suspend fun executeInternal(input: Input): Output {
-        val functions = functionProvider.provideByGroup("billing_functions")
-        val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
-
-        val template = promptTemplateRepository.findPromptTemplate("billing_prompt")!!
-        val mapVariables = mapOf(
-            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
-            "channel" to input.stepContext[CHANNEL_ID] as Channel
-        )
-        val compiledPrompt = promptCompiler.compile(template, mapVariables).getOrThrow()
-        
-        val fullConversation = conversation + SystemMessage(compiledPrompt)
-        val answer = executor.ask(fullConversation, functions).getOrThrow()
-        return Output(answer.content, Status.CONTINUE, input)
-    }
-}
-```
-
-```kotlin {4,14}
-@Component
-class AnswerBillingQuery(
-    private val functionProvider: LLMFunctionProvider,
-    private val promptTemplateExecutor: PromptTemplateExecutor
-) : AbstractStep() {
-
-    override suspend fun executeInternal(input: Input): Output {
-        val functions = functionProvider.provideByGroup("billing_functions")
-        val conversation = input.stepContext[CUSTOMER_PROFILE] as Conversation
-        val mapVariables = mapOf(
-            "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
-            "channel" to input.stepContext[CHANNEL_ID] as Channel
-        )
-        val answer = promptTemplateExecutor.execute(conversation, "billing_prompt", mapVariables, functions)
-        return Output(answer.content, Status.CONTINUE, input)
-    }
-}
-```
-````
 
 ---
 
