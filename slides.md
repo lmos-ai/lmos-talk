@@ -68,14 +68,16 @@ backgroundSize: contain
 
 #### Key Pain Points:
 - **High Maintenance Costs:** Updating scripted dialogues is time-consuming and labor-intensive.
-- **Customer Frustration:** Unresolved inquiries due to lack of knowledge led to negative customer experiences.
+- **Customer Frustration:** Unresolved inquiries due to <span v-mark.red="1">lack of knowledge</span> led to negative customer experiences.
 - **Call Center Costs:** Increased volume of customer queries at the call center, driving up costs.
 
 <br>
 
-#### Need for Change:
-- **Improve NLU/NLP:** The existing NLU/NLP, static scripts and knowledge sources were not sufficient for many customer queries.
-- **Objectives:** <span v-mark.red="1">Increase solution rate</span>, reduce call center volumes, lower maintenance costs and enhance customer satisfaction 
+#### Objectives:
+- <span v-mark.red="2">Increase solution rate</span>
+- Reduce call center volumes
+- Lower maintenance costs 
+- Enhance customer satisfaction 
 
 ---
 
@@ -88,7 +90,7 @@ backgroundSize: contain
 <br>
 
 #### Decision to Innovate:
-- **Multi-tenant and omni-channel system:** A strategic move to develop a single system for multiple NatCos and channels by making use of M-APIs.
+- **Multi-tenant and omni-channel system:** Develop a single system for multiple NatCos and channels by making use of M-APIs.
 - **Multi-agent system (MAS):** Multiple LLM-based agents, each focused on a specific business domain, working together to solve customer inquiries.
 - **Highly configurable:** Every tenant can have a unique set of Channels, Agents, capabilities and knowledge sources.
 - **Objective:** Improve <span v-mark.circle.red="1">speed</span> to rollout the digital assistant to multiple NatCos: Austria and Croatia.
@@ -115,12 +117,6 @@ backgroundSize: contain
 - **Distributed Team:** Coordination and sync between teams distributed across the globe.
 - **Expertise Gap:** Dev team’s background in Java/Kotlin rather than AI-specific technologies/languages.
 
-<br>
-
-#### Internal Doubts:
-- **Feasibility Concerns:** Doubts about the team’s ability to deliver a solution in time.
-- **Building vs. Adapting:** Debate over whether to create a new solution or adapt/buy existing solutions.
-
 ---
 layout: statement
 ---
@@ -128,7 +124,8 @@ layout: statement
 # October 2023 - Birth of LMOS
 
 A cloud-native **L**anguage **M**odel **O**perating **S**ystem for building, running and composing LLM-based AI Agents <br> <br>
-Multi-tenant, Omni-Channel, Multi-agent
+Multi-tenant, Omni-Channel, Multi-agent  <br> <br>
+Kotlin
 
 ---
 layout: image-right
@@ -264,7 +261,7 @@ class SupervisorAgent(private val stepExecutor: StepExecutor) : Agent() {
 ---
 
 # The LMOS Kernel (3/4)
-```kotlin {all|11}
+```kotlin {all|10}
 @Component
 class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
 
@@ -273,9 +270,9 @@ class BillingAgent(private val stepExecutor: StepExecutor) : Agent() {
 
     override suspend fun executeInternal(input: Input): Output {
         return stepExecutor.seq()
-            .step<ClassifyBillingRequest>()
             .step<LoadCustomerProfile>()
             .step<AnswerBillingQuery>()
+            .step<SelfEvaluation>()
             .step<DisplayBillingOptions>()
             .step<GenerateFlexCards>()
             .end().execute(input)
@@ -462,7 +459,7 @@ function(
 
 # The Agent Reactor (3/4)
 
-<Asciinema src="casts/arc-demo.cast" :playerProps="{theme: 'monokai'}"/>
+<Asciinema src="casts/arc-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1}"/>
 
 ---
 layout: image-right
@@ -475,9 +472,10 @@ backgroundSize: contain
 
 - Prompt engineering with hot reload
 - Function development with Kotlin Scripting
-- Graphql endpoint available 
+- Spring Boot Application
+- GraphQL API 
 - Builtin-in metrics for performance insights
-- Import/export of transcripts
+- Import/Export of transcripts
 
 ---
 
@@ -488,7 +486,6 @@ backgroundSize: contain
 classDiagram
 
 Tenant --> "0..*" Channel
-Tenant --> "0..*" Agent
 
 Agent *--> "1..*" Capability: provides
 
@@ -515,9 +512,6 @@ class NewsAgent{
 
 DE --> one-app
 DE --> web
-
-DE --> WeatherAgent
-DE --> NewsAgent
 
 one-app ..> WeatherAgent: requires
 web ..> WeatherAgent: requires
@@ -575,8 +569,9 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 # Overcoming hurdles
 
 #### Development challenges:
-- **Technical challenges:** Addressing model performance and hallucinations with Multi-LLM and self-evaluation.  
+
 - **Channel-Specific Requirements:** Tailoring prompts and flows for voice, web, and app channels.
+- **Technical challenges:** Addressing model performance and hallucinations with Multi-LLM and self-evaluation.   
 - **High Testing Effort:** Demanding testing process, requiring extensive manual annotations to guarantee model reliability.
 - **Multilingual Data Anonymization:** Developing robust Named Entity Recognition (NER) models capable of handling data anonymization across diverse languages and linguistic structures.
 - **Multilingual Language Support:** Ensuring language and embedding models possess the capability to process and maintain accuracy across multiple languages.
@@ -589,7 +584,7 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 #### Deployment Requirements:
 - **Canary releases:** Ability to gradually rollout usecase by usecase and channel by channel.
 - **Scalability:** Ability to handle a deployment across multiple NatCos.
-- **Security and Efficiency:** Ensuring platform security and operational efficiency.
+- **Efficiency:** Ensuring operational efficiency.
 
 <br>
 
@@ -600,12 +595,8 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 # The outcome
 
-#### Live Implementation:
+#### Metrics:
 - **Handling Interactions:** Efficiently handled thousands of customer interactions accross multiple channels and diverse use cases.
-
-<br>
-
-#### Performance Metrics:
 - **Solution Rate:** Achieved an 85% solution rate. -14% agent handovers.
 - **Hallucinations:** Less than 5% incorrect or irrelevant responses, demonstrating strong model reliability.
 - **Development Efficiency:** Developed 14 use cases within a month, averaging 2.5 days per use case, highlighting rapid iteration and implementation.
@@ -624,16 +615,10 @@ backgroundSize: contain
 
 # Moving forward
 
-#### Business Value:
-- **Return on Investment:** Delivered measurable business value - reduced call volumes and improved customer experience.
-
-<br>
-
-#### Impact on Deutsche Telekom:
 - **Strategic Foundation:** LMOS became the cornerstone for DT’s Customer Service chatbot strategy in Europe.
-- **NatCo Expansion**: Successfully rolled out in Austria, with Croatia as the next country on the roadmap.
-- **International Teamwork:** A success of an international team pushing beyond traditional boundaries.
-
+- **NatCo Expansion:** Successfully rolled out in Austria, with Croatia as the next country on the roadmap.
+- **IVR Integration:** Integration into IVR/Hotline in Germany.
+- **New Domains:** Rollout of new usecase domains such as Contracts, Orders
 
 ---
 layout: image-right
