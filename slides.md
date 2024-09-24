@@ -568,7 +568,7 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 # The LMOS Operator
 
-<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai'}"/>
+<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1}"/>
 
 ---
 
