@@ -41,8 +41,7 @@ backgroundSize: contain
   <!-- Anything that can go in an HTML video element. -->
   <source src="/videos/frag_magenta.mp4" type="video/mp4" />
   <p>
-    Your browser does not support videos. You may download it
-    <a href="/myMovie.mp4">here</a>.
+    Your browser does not support videos.
   </p>
 </SlidevVideo>
 
@@ -77,7 +76,6 @@ backgroundSize: contain
 - <span v-mark.red="2">Increase solution rate</span>
 - Reduce call center volumes
 - Lower maintenance costs 
-- Enhance customer satisfaction 
 
 ---
 
@@ -85,43 +83,49 @@ backgroundSize: contain
 
 #### Advancements in Generative AI:
 - **Large Language Models (LLMs):** Models showed potential for better language understanding and processing.
-- **Opportunity:** Use LLMs and Retrieval Augmented Generation (RAG) to improve NLU/NLP and reasoning/planning.
+- **Opportunity:** Use LLMs to improve NLU/NLP and LLM + tools/RAG for reasoning/planning.
 
 <br>
 
 #### Decision to Innovate:
-- **Multi-tenant and omni-channel system:** Develop a single system for multiple NatCos and channels by making use of M-APIs.
+- **Multi-tenant and omni-channel system:** Develop a single system for multiple NatCos and channels.
 - **Multi-agent system (MAS):** Multiple LLM-based agents, each focused on a specific business domain, working together to solve customer inquiries.
-- **Highly configurable:** Every tenant can have a unique set of Channels, Agents, capabilities and knowledge sources.
+- **Highly configurable:** Every tenant can have a unique set of Channels, Agents and knowledge sources.
 - **Objective:** Improve <span v-mark.circle.red="1">speed</span> to rollout the digital assistant to multiple NatCos: Austria and Croatia.
 
 
 ---
 layout: image
 image: /images/context_diagram.png
-backgroundSize: contain
+backgroundSize: 60%
+---
+# Providing the context
+
 ---
 
+# Facing new territory
 
----
-
-# Facing new territory and doubts
-
-#### Industry Landscape:
 - **Focus on Single-Agent Systems:** Most companies/frameworks were focused on single-agent RAG solutions.
 - **Lack of Frameworks:** No established, production-ready multi-agent frameworks were available.
-
-<br>
-
-#### Team Concerns:
-- **Distributed Team:** Coordination and sync between teams distributed across the globe.
 - **Expertise Gap:** Dev team’s background in Java/Kotlin rather than AI-specific technologies/languages.
+- **Buy or build:** Discussions about buying or adapting a solution from the market, e.g. Rasa CALM
+
+<br> <br>
+<v-click>
+<div style="text-align: center;">
+    <span style="font-size: 30px">
+        We want to be <span v-mark.red="1">creators and innovators</span>, not mere spectators, in the evolving AI landscape!
+    </span>
+</div>
+</v-click>
 
 ---
 layout: statement
 ---
 
 # October 2023 - Birth of LMOS
+
+<br>
 
 A cloud-native **L**anguage **M**odel **O**perating **S**ystem for building, running and composing LLM-based AI Agents <br> <br>
 Multi-tenant, Omni-Channel, Multi-agent  <br> <br>
@@ -194,15 +198,15 @@ backgroundSize: contain
 
 1. **ARC/LMOS-Kernel**: Simplifies AI agent development with tools and libraries.
 2. **Agent Registry**: Centralized registry for AI agents' metadata.
-3. **Agent Runtime**: Orchestrates collaboration between AI agents
-4. **Agent Discovery**: Runtime can discover installed Agents and their capabilities. 
-5. **Dynamic Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
+3. **LMOS Runtime**: Orchestrates the collaboration between AI agents
+4. **Agent Discovery**: LMOS can discover installed Agents and their metadata. 
+5. **AI-based Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
 6. **Operator:** Manages channel and agent custom resources, supports channel-based canary rollouts.
 
 ---
 layout: image
 image: /images/supervisor_agent.png
-backgroundSize: 65%
+backgroundSize: 70%
 ---
 
 # The LMOS Kernel (1/4)
@@ -306,7 +310,7 @@ class AnswerBillingQuery(
         
         val conversation = input.stepContext[CONVERSATION_HISTORY] as Conversation
         val customerProfile = input.stepContext[CUSTOMER_PROFILE] as CustomerProfile
-        val channel = input.stepContext[CHANNEL_ID] as Channel
+        val channel = input.stepContext[CHANNEL] as Channel
 
     }
 }
@@ -328,7 +332,7 @@ class AnswerBillingQuery(
         val template = promptTemplateRepository.findPromptTemplate("billing_prompt")!!
         val mapVariables = mapOf(
             "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
-            "channel" to input.stepContext[CHANNEL_ID] as Channel
+            "channel" to input.stepContext[CHANNEL] as Channel
         )
         val compiledPrompt = promptCompiler.compile(template, mapVariables).getOrThrow()
         
@@ -351,7 +355,7 @@ class AnswerBillingQuery(
         val conversation = input.stepContext[CUSTOMER_PROFILE] as Conversation
         val mapVariables = mapOf(
             "customer" to input.stepContext[CUSTOMER_PROFILE] as CustomerProfile,
-            "channel" to input.stepContext[CHANNEL_ID] as Channel
+            "channel" to input.stepContext[CHANNEL] as Channel
         )
         val answer = promptTemplateExecutor.execute(conversation, "billing_prompt", mapVariables, functions)
         return Output(answer.content, Status.CONTINUE, input)
@@ -362,7 +366,7 @@ class AnswerBillingQuery(
 
 ---
 
-# The Agent Reactor (1/4)
+# The Agent Reactor (ARC) (1/4)
 
 ````md magic-move
 ```kotlin
@@ -414,7 +418,7 @@ agent {
 ````
 ---
 
-# The Agent Reactor (2/4)
+# The Agent Reactor (ARC) (2/4)
 ````md magic-move
 ```kotlin 
 function(
@@ -457,7 +461,7 @@ function(
 
 ---
 
-# The Agent Reactor (3/4)
+# The Agent Reactor (ARC) (3/4)
 
 <Asciinema src="casts/arc-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1}"/>
 
@@ -562,7 +566,7 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 # The LMOS Operator
 
-<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1}"/>
+<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1.5}"/>
 
 ---
 
@@ -581,23 +585,20 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 # The critical test
 
-#### Deployment Requirements:
+#### Real-World deployment:
 - **Canary releases:** Ability to gradually rollout usecase by usecase and channel by channel.
 - **Scalability:** Ability to handle a deployment across multiple NatCos.
 - **Efficiency:** Ensuring operational efficiency.
-
-<br>
-
-#### Real-World Testing:
 - **Performance Evaluation:** Assessment of the platform’s performance and accuracy in live settings.
 - **Competitiveness:** Comparison with leading industry products and solutions, such as Rasa CALM or Sprinklr.
+
 ---
 
 # The outcome
 
 #### Metrics:
 - **Handling Interactions:** Efficiently handled thousands of customer interactions accross multiple channels and diverse use cases.
-- **Solution Rate:** Achieved an 85% solution rate. -14% agent handovers.
+- **Solution Rate:** Achieved an 85% solution rate. <span v-mark.red="1">-14% agent handovers.</span>
 - **Hallucinations:** Less than 5% incorrect or irrelevant responses, demonstrating strong model reliability.
 - **Development Efficiency:** Developed 14 use cases within a month, averaging 2.5 days per use case, highlighting rapid iteration and implementation.
 
