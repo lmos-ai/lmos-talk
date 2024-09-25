@@ -541,10 +541,10 @@ class NewsAgent{
 class WeatherAgent{
     <<Agent>>
 }
-class one-app-stable{
+class one-app-stable["de-one-app v1.0.0"]{
     <<Channel>>
 }
-class one-app-canary{
+class one-app-canary["de-one-app v1.1.0"]{
     <<Channel>>
 }
 
@@ -564,9 +564,11 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 ---
 
-# The LMOS Operator
 
-<Asciinema src="casts/lmos-demo.cast" :playerProps="{theme: 'monokai', idleTimeLimit: 1.5}"/>
+<SlidevVideo controls width="550">
+  <!-- Anything that can go in an HTML video element. -->
+  <source src="/videos/lmos_demo.mp4" type="video/mp4" />
+</SlidevVideo>
 
 ---
 
