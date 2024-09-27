@@ -53,7 +53,6 @@ backgroundSize: contain
 
 # Facing limitations
 
-#### RASA’s Design:
 - **Scripted Dialogue Flow:** Predefined YAML scripts guide dialogues.
 - **Predictive Planning Required:** Customer interactions must be anticipated.
 - **NLU Challenges:** NLU struggled with accurate intent recognition.
@@ -592,7 +591,6 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 - **Scalability:** Ability to handle a deployment across multiple NatCos.
 - **Efficiency:** Ensuring operational efficiency.
 - **Performance Evaluation:** Assessment of the platform’s performance and accuracy in live settings.
-- **Competitiveness:** Comparison with leading industry products and solutions, such as Rasa CALM or Sprinklr.
 
 ---
 
