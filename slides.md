@@ -85,7 +85,7 @@ backgroundSize: contain
 
 ---
 layout: image-right
-image: /images/LMOS_1.png
+image: /images/lmos_architecture.png
 backgroundSize: contain
 ---
 
@@ -98,7 +98,7 @@ backgroundSize: contain
 
 ---
 layout: image-right
-image: /images/LMOS_2.png
+image: /images/lmos_architecture.png
 backgroundSize: contain
 ---
 
@@ -109,7 +109,19 @@ backgroundSize: contain
 3. **LMOS Runtime**: Orchestrates the collaboration between AI agents
 4. **Agent Discovery**: LMOS can discover installed Agents and their metadata. 
 5. **AI-based Routing:** Runtime uses language models and vector embeddings to route queries to the most suitable agent.
-6. **Operator:** Manages channel and agent custom resources, supports channel-based canary rollouts.
+6. **Operator:** Manages the lifecycle of agents, supports canary rollouts.
+
+---
+
+# The concepts
+
+* **Agent Description Format**: A standardized format is essential for describing the capabilities and metadata of intelligent agents. 
+* **Agent Discovery**: A discovery mechanism is needed for obtaining agent descriptions, supporting both local and global networks.
+* **Agent Communication**: Agents should be able to communicate using open protocols, but the architecture must provide flexibility in choosing the best protocol for each agent’s purpose.
+* **Group Management**: Support the creation, management, and dissolution of agent groups.
+    * **Tenants**: Groups can be formed for different tenants
+    * **Channels:** Within a single tenant, multiple groups can be created for various use cases / channels.
+* **Security & Trust**: Enforce trust relationships, ensuring that only trustworthy agents can join a group.
 
 ---
 layout: image
@@ -395,6 +407,7 @@ backgroundSize: contain
 # The LMOS Operator concepts
 
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 classDiagram
 
 Tenant --> "0..*" Channel
@@ -438,9 +451,8 @@ web ..> NewsAgent: requires
 
 # The LMOS Operator concepts
 
-
-
 ```mermaid
+%%{init: {'theme':'neutral'}}%%
 classDiagram
 
 class NewsAgent{
