@@ -5,9 +5,9 @@ theme: seriph
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: /images/intro.png
 # some information about your slides (markdown enabled)
-title: The evolution of LMOS
+title: An introduction to LMOS
 info: |
-  The evolution of LMOS
+  An introduction to LMOS
 # apply unocss classes to the current slide
 class: text-center
 # https://sli.dev/features/drawing
@@ -24,99 +24,6 @@ addons:
   - slidev-addon-asciinema
 ---
 
----
-layout: image-right
-image: /images/frag_magenta.png
-backgroundSize: contain
----
-
-# Frag Magenta
-
-- Digital assistant of DT Customer Service
-- Available for Web, OneApp, WhatsApp, Apple Business Chat and IVR in Germany
-  
-<br>
-
-<SlidevVideo autoplay width="180">
-  <!-- Anything that can go in an HTML video element. -->
-  <source src="/videos/frag_magenta.mp4" type="video/mp4" />
-  <p>
-    Your browser does not support videos.
-  </p>
-</SlidevVideo>
-
----
-layout: image-right
-image: /images/rasa_story.png
-backgroundSize: contain
----
-
-# Facing limitations
-
-- **Scripted Dialogue Flow:** Predefined YAML scripts guide dialogues.
-- **Predictive Planning Required:** Customer interactions must be anticipated.
-- **NLU Challenges:** NLU struggled with accurate intent recognition.
-- **Manual Effort:** Continuous effort needed to update intents and train NLU.
-- **Knowledge gap:** No FAQ knowledge base available.
-- **Scripting:** YAML isn't a programming language.
-
----
-
-# Overcoming limitations
-
-#### Key Pain Points:
-- **High Maintenance Costs:** Updating scripted dialogues is time-consuming and labor-intensive.
-- **Customer Frustration:** Unresolved inquiries due to <span v-mark.red="1">lack of knowledge</span> led to negative customer experiences.
-- **Call Center Costs:** Increased volume of customer queries at the call center, driving up costs.
-
-<br>
-
-#### Objectives:
-- <span v-mark.red="2">Increase solution rate</span>
-- Reduce call center volumes
-- Lower maintenance costs 
-
----
-
-# Taking a bold decision
-
-#### Advancements in Generative AI:
-- **Large Language Models (LLMs):** Models showed potential for better language understanding and processing.
-- **Opportunity:** Use LLMs to improve NLU/NLP and LLM + tools/RAG for reasoning/planning.
-
-<br>
-
-#### Decision to Innovate:
-- **Multi-tenant and omni-channel system:** Develop a single system for multiple NatCos and channels.
-- **Multi-agent system (MAS):** Multiple LLM-based agents, each focused on a specific business domain, working together to solve customer inquiries.
-- **Highly configurable:** Every tenant can have a unique set of Channels, Agents and knowledge sources.
-- **Objective:** Improve <span v-mark.circle.red="1">speed</span> to rollout the digital assistant to multiple NatCos: Austria and Croatia.
-
-
----
-layout: image
-image: /images/context_diagram.png
-backgroundSize: 60%
----
-# Providing the context
-
----
-
-# Facing new territory
-
-- **Focus on Single-Agent Systems:** Most companies/frameworks were focused on single-agent RAG solutions.
-- **Lack of Frameworks:** No established, production-ready multi-agent frameworks were available.
-- **Expertise Gap:** Dev team’s background in Java/Kotlin rather than AI-specific technologies/languages.
-- **Buy or build:** Discussions about buying or adapting a solution from the market, e.g. Rasa CALM
-
-<br> <br>
-<v-click>
-<div style="text-align: center;">
-    <span style="font-size: 30px">
-        We want to be <span v-mark.red="1">creators and innovators</span>, not mere spectators, in the evolving AI landscape!
-    </span>
-</div>
-</v-click>
 
 ---
 layout: statement
@@ -129,6 +36,8 @@ layout: statement
 A cloud-native **L**anguage **M**odel **O**perating **S**ystem for building, running and composing LLM-based AI Agents <br> <br>
 Multi-tenant, Omni-Channel, Multi-agent  <br> <br>
 Kotlin
+
+
 
 ---
 layout: image-right
@@ -583,45 +492,6 @@ one-app-canary  ..> summarize :requires  >=v1.0.1
 
 
 ---
-
-# The critical test
-
-#### Real-World deployment:
-- **Canary releases:** Ability to gradually rollout usecase by usecase and channel by channel.
-- **Scalability:** Ability to handle a deployment across multiple NatCos.
-- **Efficiency:** Ensuring operational efficiency.
-- **Performance Evaluation:** Assessment of the platform’s performance and accuracy in live settings.
-
----
-
-# The outcome
-
-#### Metrics:
-- **Handling Interactions:** Efficiently handled thousands of customer interactions accross multiple channels and diverse use cases.
-- **Solution Rate:** Achieved an 85% solution rate. <span v-mark.red="1">-14% agent handovers.</span>
-- **Hallucinations:** Less than 5% incorrect or irrelevant responses, demonstrating strong model reliability.
-- **Development Efficiency:** Developed 14 use cases within a month, averaging 2.5 days per use case, highlighting rapid iteration and implementation.
-
-<br>
-
-#### Impact:
-- **Higher solution rate:** Enhanced solution rate by leveraging additional context information, such as knowledge sources and M-APIs.
-- **Accelerated Processes:** Accelerated development and deployment timelines, leading to quicker delivery of new use cases.
-
----
-layout: image-right
-image: /images/roadmap.png
-backgroundSize: contain
----
-
-# Moving forward
-
-- **Strategic Foundation:** LMOS became the cornerstone for DT’s Customer Service chatbot strategy in Europe.
-- **NatCo Expansion:** Successfully rolled out in Austria, with Croatia as the next country on the roadmap.
-- **IVR Integration:** Integration into IVR/Hotline in Germany.
-- **New Domains:** Rollout of new usecase domains such as Contracts, Orders
-
----
 layout: image-right
 image: /images/open_source.png
 backgroundSize: contain
@@ -629,8 +499,9 @@ backgroundSize: contain
 
 # Going Open Source
 
-- **Community Contribution:** Release of ARC/LMOS to the open-source community on GitHub.
-- **Sharing Innovations:** Providing a valuable solution for building an enterprise-ready, multi-tenant, multi-channel and multi-agent system.
+- **Community Contribution:** Release of ARC/LMOS to the open-source community on GitHub. http://lmos-ai.org
+- **Sharing Innovations:** Proposal for Eclipse Foundation: https://projects.eclipse.org/proposals/eclipse-lmos
+
 ---
 layout: fact
 --- 
